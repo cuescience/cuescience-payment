@@ -1,5 +1,5 @@
-from cuescience_payment.models import PayPalPayment
-from cuescience_payment.paypal import PayPalService
+from payment.models import PayPalPayment
+from payment.paypal import PayPalService
 
 __author__ = 'i.bauer'
 
@@ -22,7 +22,7 @@ def success_view(request, payment_id):
     return redirect("/")
 
 
-def success_view(request, payment_id):
+def cancel_view(request, payment_id):
     paypal_payment = PayPalPayment.objects.get(pk=payment_id)
     payer_id = request.GET.get("PayerID", None)
     paypal_payment.status = "canceled"
