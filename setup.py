@@ -14,7 +14,7 @@ setup(
         maintainer_email='kontakt@cuescience.de',
         license="-",
         url='',
-        packages=['payment', 'payment.services.paypal'],
+        packages=['payment', 'payment.services', 'payment.services.paypal'],
         install_requires=[
 	    "Django",
 	    "paypalrestsdk",
