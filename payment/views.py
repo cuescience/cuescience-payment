@@ -1,12 +1,12 @@
 from payment.models import PayPalPayment
-from payment.paypal import PayPalService
+from payment.services.paypal import paypal
 
 __author__ = 'i.bauer'
 
 from django.shortcuts import redirect
 
 
-paypal_service = PayPalService()
+paypal_service = paypal.PayPalService()
 
 
 def success_view(request, payment_id):
