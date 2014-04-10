@@ -1,0 +1,101 @@
+from cuescience_payment.models import PayPalPayment
+import paypalrestsdk
+
+__author__ = 'pirat'
+
+
+class Transaction(object):
+    def __init__(self, total=0, item_list=list()):
+        self.item_list = item_list
+        self.total = total
+
+    def to_dict(self):
+        item_list_dict = {"items": list([item.to_dict() for item in self.item_list])}
+
+        result = {
+            "transactions": [{
+                                 "item_list": item_list_dict,
+                                 "amount": {
+                                     "total": "{0}".format(self.total),
+                                     "currency": "EUR"
+                                 }
+                             }]
+        }
+
+        return result
+
+
+class Item(object):
+    def __init__(self, name, price, quantity, currency, sku=""):
+        self.sku = sku
+        self.name = name
+        self.price = price
+        self.quantity = quantity
+        self.currency = currency
+
+    def to_dict(self):
+        result = {
+            "sku": self.sku,
+            "name": self.name,
+            "price": "{0}".format(self.price),
+            "quantity": self.quantity,
+            "currency": self.currency
+        }
+        return result
+
+
+class CreatePaymentResult(object):
+    def __init__(self, paypal_payment_db, payment):
+        self.paypal_payment_db = paypal_payment_db
+        self.payment = payment
+
+
+class PayPalService(object):
+    def __init__(self, currency="EUR"):
+        self.currency = currency
+        self.client_id = "EBWKjlELKMYqRNQ6sYvFo64FtaRLRR5BdHEESmha49TM"
+        self.client_secret = "EO422dn3gQLgDbuwqTjzrFgFtaRLRR5BdHEESmha49TM"
+
+    def configure(self):
+        paypalrestsdk.configure({
+            "mode": "sandbox",
+            "client_id": self.client_id,
+            "client_secret": self.client_secret
+        })
+
+    def create_payment(self, transaction, next="/"):
+
+        paypal_payment = PayPalPayment()
+        paypal_payment.save()
+
+        result_dict = {
+            "intent": "sale",
+            "payer": {
+                "payment_method": "paypal"
+            },
+            "redirect_urls": {
+                "return_url": "http://localhost:8000/payment/{0}/success/?next={1}".format(paypal_payment.pk, next),
+                "cancel_url": "http://localhost:8000/payment/{0}/cancel/?next={1}".format(paypal_payment.pk, next),
+            },
+        }
+        result_dict.update(transaction.to_dict())
+        self.configure()
+
+        print result_dict
+
+        payment = paypalrestsdk.Payment(result_dict)
+        payment.create()
+        if not payment.error:
+            paypal_payment.paypal_payment_id = payment.id
+            for link in payment.links:
+                if link.method == "REDIRECT":
+                    paypal_payment.approval_url = link.href
+        paypal_payment.save()
+
+        return CreatePaymentResult(paypal_payment, payment)
+
+    def execute_payment(self, payment_id, payer_id):
+        self.configure()
+        payment = paypalrestsdk.Payment.find(payment_id)
+        payment.execute({"payer_id": payer_id})
+        return payment
