@@ -1,4 +1,4 @@
-from cuescience_payment.models import PayPalPayment
+from payment.models import PayPalPayment
 import paypalrestsdk
 
 __author__ = 'pirat'
