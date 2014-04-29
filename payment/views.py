@@ -3,10 +3,15 @@ from payment.services.paypal import paypal
 
 __author__ = 'i.bauer'
 
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 
 
 paypal_service = paypal.PayPalService()
+
+
+def redirect_view(request, payment_id):
+    paypal_payment = get_object_or_404(PayPalPayment, pk=payment_id)
+    return redirect(paypal_payment.approval_url)
 
 
 def success_view(request, payment_id):

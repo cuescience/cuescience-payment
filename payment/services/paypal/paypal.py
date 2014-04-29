@@ -5,8 +5,8 @@ __author__ = 'pirat'
 
 
 class Transaction(object):
-    def __init__(self, total=0, item_list=list()):
-        self.item_list = item_list
+    def __init__(self, total=0, item_list=None):
+        self.item_list = item_list or []
         self.total = total
 
     def to_dict(self):

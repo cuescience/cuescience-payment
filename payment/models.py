@@ -12,3 +12,6 @@ class PayPalPayment(Payment):
     paypal_payment_id = models.CharField(max_length=256, blank=True)
     approval_url = models.CharField(max_length=256, blank=True)
 
+
+class PrePayment(Payment):
+    pass
