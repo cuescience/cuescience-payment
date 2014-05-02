@@ -59,7 +59,7 @@ class PayPalService(object):
 
     def configure(self):
         paypalrestsdk.configure({
-            "mode": "sandbox",
+            "mode": settings.PAYPAL_API_MODE,
             "client_id": self.client_id,
             "client_secret": self.client_secret
         })
