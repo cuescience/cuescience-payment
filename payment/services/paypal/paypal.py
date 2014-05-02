@@ -1,5 +1,6 @@
 from payment.models import PayPalPayment
 import paypalrestsdk
+from django.conf import settings
 
 __author__ = 'pirat'
 
@@ -53,8 +54,8 @@ class CreatePaymentResult(object):
 class PayPalService(object):
     def __init__(self, currency="EUR"):
         self.currency = currency
-        self.client_id = "EBWKjlELKMYqRNQ6sYvFo64FtaRLRR5BdHEESmha49TM"
-        self.client_secret = "EO422dn3gQLgDbuwqTjzrFgFtaRLRR5BdHEESmha49TM"
+        self.client_id = settings.PAYPAL_CLIENT_ID
+        self.client_secret = settings.PAYPAL_CLIENT_SECRET
 
     def configure(self):
         paypalrestsdk.configure({
@@ -63,7 +64,7 @@ class PayPalService(object):
             "client_secret": self.client_secret
         })
 
-    def create_payment(self, transaction, next="/"):
+    def create_payment(self, transaction, domain, next="/"):
 
         paypal_payment = PayPalPayment()
         paypal_payment.save()
@@ -74,8 +75,8 @@ class PayPalService(object):
                 "payment_method": "paypal"
             },
             "redirect_urls": {
-                "return_url": "http://localhost:8000/payment/{0}/success/?next={1}".format(paypal_payment.pk, next),
-                "cancel_url": "http://localhost:8000/payment/{0}/cancel/?next={1}".format(paypal_payment.pk, next),
+                "return_url": "http://{0}/payment/{1}/success/?next={2}".format(domain, paypal_payment.pk, next),
+                "cancel_url": "http://{0}/payment/{1}/cancel/?next={2}".format(domain, paypal_payment.pk, next),
             },
         }
         result_dict.update(transaction.to_dict())
