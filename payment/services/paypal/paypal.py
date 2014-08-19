@@ -1,9 +1,9 @@
+import logging
 from payment.models import PayPalPayment
 import paypalrestsdk
 from django.conf import settings
 
-__author__ = 'pirat'
-
+logger = logging.getLogger(__name__)
 
 class Transaction(object):
     def __init__(self, total=0, item_list=None):
@@ -91,6 +91,9 @@ class PayPalService(object):
             for link in payment.links:
                 if link.method == "REDIRECT":
                     paypal_payment.approval_url = link.href
+        else:
+            logger.error("Payment went wrong! Errors: {}".format(payment.error))
+            print payment.error
         paypal_payment.save()
 
         return CreatePaymentResult(paypal_payment, payment)

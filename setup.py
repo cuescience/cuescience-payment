@@ -8,7 +8,7 @@ def read(fname):
 
 setup(
         name='cuescience-payment',
-        version='0.1',
+        version='0.1.1',
         description='Payment modules for cuescience shop',
         maintainer='cuescience',
         maintainer_email='kontakt@cuescience.de',
